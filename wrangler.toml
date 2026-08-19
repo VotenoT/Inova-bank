@@ -1,0 +1,7 @@
+name = "inova-ai-proxy"
+main = "cloudflare-worker/worker.js"
+compatibility_date = "2026-08-19"
+keep_vars = true
+
+[vars]
+GROQ_MODEL = "openai/gpt-oss-120b"
