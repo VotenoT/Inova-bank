@@ -1,0 +1,57 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Inova UI payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          let b64 = '';
+          for (let i = 0; i < 6; i++) {
+            const file = `app/src/main/assets/parts/part${String(i).padStart(2, '0')}.js`;
+            const src = fs.readFileSync(file, 'utf8');
+            const match = src.match(/\+"([A-Za-z0-9+/=]+)";/);
+            if (!match) throw new Error(`Payload inválido em ${file}`);
+            b64 += match[1];
+          }
+          const html = Buffer.from(b64, 'base64');
+          const sha = crypto.createHash('sha256').update(html).digest('hex');
+          const expected = '79370da692ce16bfa165889171dbd7cb44c43f89eee061df96680a8fdcdb04d0';
+          if (sha !== expected) throw new Error(`SHA-256 do HTML divergente: ${sha}`);
+          console.log(`UI verificada: ${html.length} bytes, SHA-256 ${sha}`);
+          NODE
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Build debug APK
+        run: gradle :app:assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: InovaBank-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
