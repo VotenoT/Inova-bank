@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inova</title>
+<script>window.__inovaB64="";</script>
+<script src="app/src/main/assets/parts/part00.js"></script>
+<script src="app/src/main/assets/parts/part01.js"></script>
+<script src="app/src/main/assets/parts/part02.js"></script>
+<script src="app/src/main/assets/parts/part03.js"></script>
+<script src="app/src/main/assets/parts/part04.js"></script>
+<script src="app/src/main/assets/parts/part05.js"></script>
+<script>
+(() => {
+  try {
+    const binary = atob(window.__inovaB64);
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    const html = new TextDecoder("utf-8").decode(bytes);
+    window.__inovaB64 = "";
+    document.open();
+    document.write(html);
+    document.close();
+  } catch (error) {
+    document.body.innerHTML = "<pre>Falha ao carregar o Inova: " + String(error && error.message || error) + "</pre>";
+  }
+})();
+</script>
+</head>
+<body></body>
+</html>
