@@ -1,0 +1,10 @@
+name = "inova-ai-proxy"
+main = "worker.js"
+compatibility_date = "2026-08-19"
+
+# Defina o modelo no painel/variáveis do Worker:
+# GROQ_MODEL = "nome-do-modelo-disponivel-na-sua-conta"
+#
+# NUNCA coloque a chave aqui.
+# Use:
+#   wrangler secret put GROQ_API_KEY
