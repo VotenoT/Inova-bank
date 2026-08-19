@@ -2,6 +2,10 @@
 
 Aplicativo Android baseado em WebView, com interface em HTML/CSS/JS e funcionamento local.
 
+## Estado do projeto
+
+O projeto já está aplicado neste repositório. O workflow **Build Android APK** pode ser executado em **Actions** para validar a interface e gerar o APK de debug.
+
 ## O que está incluído
 
 - Tema preto/branco com alternância no canto superior direito.
@@ -22,13 +26,13 @@ Aplicativo Android baseado em WebView, com interface em HTML/CSS/JS e funcioname
 
 ## Gerar APK pelo GitHub
 
-1. Crie um repositório no GitHub.
-2. Envie todos os arquivos deste ZIP para o repositório.
-3. Abra a aba **Actions**.
-4. Execute o workflow **Build Android APK** ou faça um push para `main`.
-5. Ao final, baixe o artefato `InovaBank-debug-apk`.
+1. Abra a aba **Actions** do repositório.
+2. Abra **Build Android APK**.
+3. Execute **Run workflow** na branch `main`.
+4. Aguarde a conclusão do job `build`.
+5. Baixe o artefato `InovaBank-debug-apk`.
 
-O APK gerado será de debug, ideal para prototipagem e testes.
+O APK gerado é de debug, adequado para prototipagem e testes.
 
 ## IA com Cloudflare + Groq
 
@@ -38,11 +42,8 @@ A pasta `cloudflare-worker/` contém o proxy.
 
 1. Crie um Cloudflare Worker.
 2. Use `cloudflare-worker/worker.js`.
-3. Crie o Secret:
-   - `GROQ_API_KEY`
-4. Crie também a variável:
-   - `GROQ_MODEL`
-   - use um modelo disponível na sua conta Groq.
+3. Crie o Secret `GROQ_API_KEY`.
+4. Crie a variável `GROQ_MODEL` usando um modelo disponível na sua conta Groq.
 5. Publique o Worker.
 6. No aplicativo, vá em **Perfil > IA via Cloudflare** e informe a URL HTTPS do Worker.
 
@@ -52,8 +53,6 @@ A chave da Groq não deve ser colocada no HTML, no GitHub ou no APK.
 
 O protótipo consulta o endpoint público da AwesomeAPI para pares em BRL. A disponibilidade e frequência de atualização dependem do serviço externo.
 
-## Arquivo principal da interface
+## Interface
 
-`app/src/main/assets/index.html`
-
-Todo o CSS e JavaScript da interface está incorporado nesse único HTML.
+O Android abre `app/src/main/assets/index.html`. A interface original do ZIP é reconstruída localmente a partir dos arquivos em `app/src/main/assets/parts/`, permitindo preservar o conteúdo integral do HTML no repositório.
