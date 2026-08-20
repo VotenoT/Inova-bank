@@ -22,6 +22,8 @@
       '<div class="brand"><img class="logo-img" src="logo.jpg" alt="Logo Inova"><div>INOVA<span style="font-weight:400">bank</span></div></div>'
     );
     html = html.replace('</style>', '.logo-img{width:44px;height:44px;object-fit:cover;border-radius:12px;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow)}\n</style>');
+    html = html.replace('</head>', '<link rel="stylesheet" href="enhancements.css">\n</head>');
+    html = html.replace('</body>', '<script src="enhancements.js"><\/script>\n</body>');
     window.__inovaB64 = "";
     document.open();
     document.write(html);
