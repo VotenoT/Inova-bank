@@ -16,7 +16,12 @@
   try {
     const binary = atob(window.__inovaB64);
     const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
-    const html = new TextDecoder("utf-8").decode(bytes);
+    let html = new TextDecoder("utf-8").decode(bytes);
+    html = html.replace(
+      '<div class="brand"><div class="logo">I</div><div>INOVA<span style="font-weight:400">bank</span></div></div>',
+      '<div class="brand"><img class="logo-img" src="logo.jpg" alt="Logo Inova"><div>INOVA<span style="font-weight:400">bank</span></div></div>'
+    );
+    html = html.replace('</style>', '.logo-img{width:44px;height:44px;object-fit:cover;border-radius:12px;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow)}\n</style>');
     window.__inovaB64 = "";
     document.open();
     document.write(html);
