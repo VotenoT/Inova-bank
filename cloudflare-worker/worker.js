@@ -78,6 +78,11 @@ export default {
         .filter(m => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
         .map(m => ({ role: m.role, content: m.content.slice(0, 4000) }));
 
+      const last = safeHistory[safeHistory.length - 1];
+      const conversation = last?.role === "user" && last.content.trim() === question
+        ? safeHistory
+        : [...safeHistory, { role: "user", content: question }];
+
       const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -93,8 +98,7 @@ export default {
               role: "system",
               content: `Dados atuais do aplicativo (use apenas quando forem relevantes):\n${JSON.stringify(context, null, 2)}`,
             },
-            ...safeHistory,
-            { role: "user", content: question },
+            ...conversation,
           ],
         }),
       });
