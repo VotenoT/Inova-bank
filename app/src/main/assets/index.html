@@ -11,12 +11,16 @@
 <script src="parts/part03.js"></script>
 <script src="parts/part04.js"></script>
 <script src="parts/part05.js"></script>
+<script src="patch-v103.js"></script>
 <script>
 (() => {
   try {
     const binary = atob(window.__inovaB64);
     const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
     let html = new TextDecoder("utf-8").decode(bytes);
+    if (window.InovaPatch && typeof window.InovaPatch.apply === "function") {
+      html = window.InovaPatch.apply(html);
+    }
     html = html.replace(
       '<div class="brand"><div class="logo">I</div><div>INOVA<span style="font-weight:400">bank</span></div></div>',
       '<div class="brand"><img class="logo-img" src="logo.jpg" alt="Logo Inova"><div>INOVA<span style="font-weight:400">bank</span></div></div>'
