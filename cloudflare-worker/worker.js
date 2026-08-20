@@ -15,7 +15,14 @@ REGRAS
 - Quando os dados forem insuficientes, diga exatamente o que está faltando.
 - Para decisões relevantes, sugira critérios objetivos e cenários, não uma ordem.
 - Considere que todos os valores bancários deste protótipo são simulados.
-- Responda em português do Brasil, de forma clara e concisa.
+- Responda em português do Brasil.
+- Use linguagem simples, direta e fácil de entender.
+- Comece pela conclusão ou pelo ponto mais importante.
+- Evite jargões; quando um termo técnico for necessário, explique-o em uma frase curta.
+- Prefira respostas curtas, com no máximo 3 a 6 pontos quando uma lista ajudar.
+- Não despeje números sem contexto: diga o que eles significam.
+- Se o usuário perguntar "por quê?", explique a causa em passos simples.
+- Mantenha o tom de um chatbot útil e natural, sem parecer um relatório burocrático.
 `;
 
 function corsHeaders() {
@@ -58,6 +65,7 @@ export default {
       const body = await request.json();
       const question = String(body.question || "").trim();
       const context = body.context || {};
+      const history = Array.isArray(body.history) ? body.history.slice(-12) : [];
 
       if (!question) {
         return new Response(JSON.stringify({ error: "Pergunta vazia." }), {
@@ -65,6 +73,10 @@ export default {
           headers: corsHeaders(),
         });
       }
+
+      const safeHistory = history
+        .filter(m => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+        .map(m => ({ role: m.role, content: m.content.slice(0, 4000) }));
 
       const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
@@ -78,11 +90,11 @@ export default {
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             {
-              role: "user",
-              content:
-                `Contexto atual do aplicativo:\n${JSON.stringify(context, null, 2)}\n\n` +
-                `Pergunta do usuário:\n${question}`,
+              role: "system",
+              content: `Dados atuais do aplicativo (use apenas quando forem relevantes):\n${JSON.stringify(context, null, 2)}`,
             },
+            ...safeHistory,
+            { role: "user", content: question },
           ],
         }),
       });
