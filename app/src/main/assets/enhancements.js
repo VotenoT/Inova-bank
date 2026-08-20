@@ -2,8 +2,11 @@
   const $ = (s, root=document) => root.querySelector(s);
   const STORAGE_KEY = 'inovaAiChatHistory';
   const MAX_HISTORY = 30;
+  const AI_ENDPOINT = 'https://inova-bank.kaio2511henrique.workers.dev';
 
-  const escapeHtml = (value='') => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const escapeHtml = (value='') => String(value).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
 
   function getAppState(){
     try { return JSON.parse(localStorage.getItem('inovaState') || '{}') || {}; }
@@ -35,7 +38,7 @@
       investment: Number(state.investment || 0),
       company: state.company || null,
       last24h: { income, expense, net: income - expense, transactions: last24.slice(0, 30) },
-      reminders: (Array.isArray(state.reminders) ? state.reminders : []).slice(0, 30),
+      reminders: (Array.isArray(state.reminders) ? state.reminders : []).filter(r => !r.completed).slice(0, 30),
       selectedCurrency: state.currencyCache?.[selected] || { pair: selected, status: 'sem cache' }
     };
   }
@@ -101,28 +104,21 @@
     const q = String(question || '').trim();
     if (!q) return;
 
-    const state = getAppState();
-    const url = String(state.workerUrl || '').trim().replace(/\/$/, '');
     const input = $('#aiChatInput');
     const send = $('#aiChatSend');
 
     pushMessage('user', q);
     if (input) { input.value = ''; input.style.height = 'auto'; }
 
-    if (!url) {
-      pushMessage('assistant', 'Para usar a IA, configure primeiro a URL do Cloudflare Worker em Perfil > IA via Cloudflare.');
-      return;
-    }
-
     if (send) send.disabled = true;
     setTyping(true);
 
     try {
-      const history = getHistory().slice(-12).map(m => ({ role: m.role, content: m.content }));
-      const response = await fetch(url, {
+      const history = getHistory().slice(0, -1).slice(-11).map(m => ({ role: m.role, content: m.content }));
+      const response = await fetch(AI_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q, context: buildContext(), history })
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ question:q, context:buildContext(), history })
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
@@ -158,8 +154,12 @@
       e.currentTarget.style.height = 'auto';
       e.currentTarget.style.height = Math.min(120, e.currentTarget.scrollHeight) + 'px';
     });
-    modal.querySelectorAll('[data-chat-prompt]').forEach(btn => btn.addEventListener('click', () => sendMessage(btn.dataset.chatPrompt)));
-    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+    modal.querySelectorAll('[data-chat-prompt]').forEach(btn =>
+      btn.addEventListener('click', () => sendMessage(btn.dataset.chatPrompt))
+    );
+    modal.addEventListener('click', e => {
+      if (e.target === modal) modal.classList.remove('open');
+    });
     renderMessages();
   }
 
@@ -178,10 +178,10 @@
       const btn = e.target.closest('button');
       if (!btn) return;
       btn.animate([
-        { transform: 'scale(1)' },
-        { transform: 'scale(.965)' },
-        { transform: 'scale(1)' }
-      ], { duration: 180, easing: 'ease-out' });
+        { transform:'scale(1)' },
+        { transform:'scale(.965)' },
+        { transform:'scale(1)' }
+      ], { duration:180, easing:'ease-out' });
     });
   }
 
@@ -191,6 +191,9 @@
     addRippleFeedback();
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once:true });
-  else start();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once:true });
+  } else {
+    start();
+  }
 })();
